@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Moisture Suction Prediction</title>
+    <style>
+        body {
+            background-color: #e6f2ff; /* Use a soft background color */
+            font-family: Arial, sans-serif; /* Use a common font for better readability */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .button {
+            border-radius: 15px;
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            width: 50%; 
+            height: 5%; 
+            margin: 5%; 
+        }
+        .disabled-button {
+            border-radius: 15px;
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            border: none;
+            background-color: #cccccc;
+            color: #fff;
+            width: 100%; 
+            height: 5%; 
+            margin: 5%; 
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <!-- Link/button for moisture prediction -->
+            <a class="button" href="/moisture">Moisture Prediction</a>
+        </div>
+        <div>
+            <!-- Link/button for suction prediction -->
+            <a class="button" href="/suction">Suction Prediction</a>
+        </div>
+        <div>
+            <!-- Placeholder for the third link (not ready yet) -->
+            <button class="disabled-button" disabled>Plotting</button>
+        </div>
+    </div>
+</body>
+</html>

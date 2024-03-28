@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!-- Add jQuery -->
+  <style>
+    body, html {
+        background-color: #e6f2ff; /* Use a soft background color */
+        font-family: Arial, sans-serif; /* Use a common font for better readability */
+        height: 100%;
+    }
+
+    .split {
+        height: 100%;
+        width: 50%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        overflow-x: hidden;
+    }
+
+    .left {
+        left: 0;
+    }
+
+    .right {
+        right: 0;
+    }
+
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+
+    .button {
+        padding: 10px 10px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        position: absolute;
+    }
+
+    .button:hover {background-color: #0056b3;}
+
+  </style>
+</head>
+
+<body>
+    <div class="split left">
+        <div id="map"></div>
+    </div>
+      
+    <div class="split right">
+        <a class="button" href="/">Back to Home</a>
+        <div class="centered">
+            <div id="map-message">Tap anywhere on the map for its suction prediction</div>
+            <div id="suction-prediction" style="display: none;">
+                <h2>Suction Prediction</h2>
+                <table id="suction-prediction-table">
+                    <!-- Table content will be dynamically added -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map').setView([-6.362302, 106.824081], 16); // Centered at Universitas Indonesia
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  // Define bounds for Universitas Indonesia
+  var southWest = L.latLng(-6.3724, 106.8266),
+      northEast = L.latLng(-6.3609, 106.8318),
+      bounds = L.latLngBounds(southWest, northEast);
+
+  map.setMaxBounds(bounds);
+  map.on('drag', function() {
+    map.panInsideBounds(bounds, { animate: false });
+  });
+
+  map.on('click', function(e) {
+    var latitude = e.latlng.lat.toFixed(6);
+    var longitude = e.latlng.lng.toFixed(6);
+    
+    // Update the message to indicate loading
+    $('#map-message').text('Loading suction prediction...');
+    
+    $.ajax({
+      type: 'POST',
+      url: '/predict/suction/' + latitude + '/' + longitude,
+      success: function(response) {
+        // Update the message with response information
+        // $('#map-message').text('suction prediction: ' + JSON.stringify(response, null, 2));
+        $('#map-message').hide();
+        displaySuctionPrediction(response);
+
+      },
+      error: function(xhr, status, error) {
+        console.error(error); 
+      }
+    });
+  });
+  map.removeControl(map.zoomControl);
+  function displaySuctionPrediction(data) {
+    // Extract relevant data for the table
+    var tableData = {
+      "Longitude": data.longitude,
+      "Latitude": data.latitude,
+      "Temperature (°C)": data.temperature,
+      "Humidity (%)": data.humidity,
+      "Dew Point (°C)": data.dew_point,
+      "Precipitation (mm)": data.precipitation,
+      "Rain": data.rain,
+      "Weather Code": data.weather_code,
+      "Evapotranspiration": data.evapotranspiration,
+      "Wind Speed (m/s)": data.wind_speed,
+      "Wind Direction (°)": data.wind_direction,
+      "Predicted Suction": data.predicted_suction
+    };
+
+    // Clear previous table content
+    $('#suction-prediction-table').empty();
+
+    // Add data rows to the table
+    $.each(tableData, function(parameter, value) {
+      $('#suction-prediction-table').append('<tr><td>' + parameter + '</td><td>' + value + '</td></tr>');
+    });
+
+    // Show the table
+    $('#suction-prediction').show();
+  }
+</script>
+
+</body>
+</html>
