@@ -82,72 +82,109 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  var map = L.map('map').setView([-6.362302, 106.824081], 16); // Centered at Universitas Indonesia
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-
-  // Define bounds for Universitas Indonesia
-  var southWest = L.latLng(-6.3724, 106.8266),
-      northEast = L.latLng(-6.3609, 106.8318),
-      bounds = L.latLngBounds(southWest, northEast);
-
-  map.setMaxBounds(bounds);
-  map.on('drag', function() {
-    map.panInsideBounds(bounds, { animate: false });
-  });
-
-  map.on('click', function(e) {
-    var latitude = e.latlng.lat.toFixed(6);
-    var longitude = e.latlng.lng.toFixed(6);
+    var map = L.map('map').setView([-6.362302, 106.824081], 15.5); // Centered at Universitas Indonesia
     
-    // Update the message to indicate loading
-    $('#map-message').text('Loading moisture prediction...');
-    
-    $.ajax({
-      type: 'POST',
-      url: '/predict/moisture/' + latitude + '/' + longitude,
-      success: function(response) {
-        // Update the message with response information
-        // $('#map-message').text('Moisture prediction: ' + JSON.stringify(response, null, 2));
-        $('#map-message').hide();
-        displayMoisturePrediction(response);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-      },
-      error: function(xhr, status, error) {
-        console.error(error); 
-      }
-    });
-  });
-  map.removeControl(map.zoomControl);
-  function displayMoisturePrediction(data) {
-    // Extract relevant data for the table
-    var tableData = {
-      "Longitude": data.longitude,
-      "Latitude": data.latitude,
-      "Temperature (°C)": data.temperature,
-      "Humidity (%)": data.humidity,
-      "Dew Point (°C)": data.dew_point,
-      "Precipitation (mm)": data.precipitation,
-      "Rain": data.rain,
-      "Weather Code": data.weather_code,
-      "Evapotranspiration": data.evapotranspiration,
-      "Wind Speed (m/s)": data.wind_speed,
-      "Wind Direction (°)": data.wind_direction,
-      "Predicted Moisture": data.predicted_moisture
+    // Define bounds for Universitas Indonesia
+    var southWest = L.latLng(-6.3724, 106.8266),
+        northEast = L.latLng(-6.3609, 106.8318),
+        bounds = L.latLngBounds(southWest, northEast);
+    
+   // Define the coordinates of the markers
+    var markerCoordinates = [
+        [-6.3643444, 106.8290695],
+        [-6.3669607, 106.8314781],
+        [-6.3653083, 106.8246415],
+        [-6.3705264, 106.8268372],
+        [-6.3607737, 106.8265036],
+        [-6.3651944, 106.8311499],
+        [-6.3643654, 106.8289994]
+    ];
+
+    // (-6.3653993, 106.8246962) ==> Dekat pusgiwa
+    // (-6.3643654, 106.8289994) ==> Dekat pacil
+
+    var markerIconOptions = {
+        iconUrl: "{{ url_for('static', path='moisture.jpeg') }}", 
+        iconSize: [25, 25]
     };
 
-    // Clear previous table content
-    $('#moisture-prediction-table').empty();
+    // Loop through the coordinates array to create and add markers to the map
+    for (var i = 0; i < markerCoordinates.length; i++) {
+        var marker = L.marker(markerCoordinates[i], 
+        { icon: L.icon(markerIconOptions) }
+        );
+        marker.addTo(map);
+    }
 
-    // Add data rows to the table
-    $.each(tableData, function(parameter, value) {
-      $('#moisture-prediction-table').append('<tr><td>' + parameter + '</td><td>' + value + '</td></tr>');
+    map.setMaxBounds(bounds);
+    map.on('drag', function() {
+        map.panInsideBounds(bounds, { animate: false });
     });
 
-    // Show the table
-    $('#moisture-prediction').show();
-  }
+    var temp = []
+    map.on('click', function(e) {
+        var latitude = e.latlng.lat.toFixed(6);
+        var longitude = e.latlng.lng.toFixed(6);
+
+        if (temp.length > 0) {
+            map.removeLayer(temp[0])
+            temp.pop()
+        }
+
+        var tempMarker = L.marker([latitude, longitude])
+        tempMarker.addTo(map)
+        temp.push(tempMarker)
+        
+        // Update the message to indicate loading
+        $('#map-message').text('Loading moisture prediction...');
+        
+        $.ajax({
+        type: 'POST',
+        url: '/predict/moisture/' + latitude + '/' + longitude,
+        success: function(response) {
+            // Update the message with response information
+            $('#map-message').hide();
+            displayMoisturePrediction(response);
+
+        },
+        error: function(xhr, status, error) {
+            console.error(error); 
+        }
+        });
+    });
+    map.removeControl(map.zoomControl);
+    function displayMoisturePrediction(data) {
+        // Extract relevant data for the table
+        var tableData = {
+        "Longitude": data.longitude,
+        "Latitude": data.latitude,
+        "Temperature (°C)": data.temperature,
+        "Humidity (%)": data.humidity,
+        "Dew Point (°C)": data.dew_point,
+        "Precipitation (mm)": data.precipitation,
+        "Rain": data.rain,
+        "Weather Code": data.weather_code,
+        "Evapotranspiration": data.evapotranspiration,
+        "Wind Speed (m/s)": data.wind_speed,
+        "Wind Direction (°)": data.wind_direction,
+        "Predicted Moisture": data.predicted_moisture
+        };
+
+        // Clear previous table content
+        $('#moisture-prediction-table').empty();
+
+        // Add data rows to the table
+        $.each(tableData, function(parameter, value) {
+        $('#moisture-prediction-table').append('<tr><td>' + parameter + '</td><td>' + value + '</td></tr>');
+        });
+
+        // Show the table
+        $('#moisture-prediction').show();
+    }
 </script>
 
 </body>
