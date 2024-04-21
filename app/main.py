@@ -5,7 +5,7 @@ from app.utils import get_nearest_hour, get_today_info
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from typing import Iterator
+from typing import Iterator, List
 
 import pickle
 import os
@@ -23,6 +23,8 @@ templates = Jinja2Templates(directory="app/templates")
 random.seed()  
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+data_store: List[dict] = []
+MAX_DATA_POINTS = 1
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
@@ -114,8 +116,39 @@ async def generate_random_data(request: Request) -> Iterator[str]:
 
 @app.get("/chart-data")
 async def chart_data(request: Request) -> StreamingResponse:
-    response = StreamingResponse(generate_random_data(request), media_type="text/event-stream")
+    response = StreamingResponse(generate_client_data(), media_type="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
+@app.post("/receive-data")
+async def receive_data(data: dict):
+    """
+    Receive data sent via POST request and store it.
+    """
+
+    data_store.insert(0, data)
+    logger.info("Received data: %s", data)
+    
+    # Ensure that data_store does not exceed the maximum number of data points
+    if len(data_store) > MAX_DATA_POINTS:
+        data_store.pop()  # Remove the oldest data point from the end of the list
+
+    return {"message": "Data received successfully"}
+
+async def generate_client_data() -> Iterator[str]:
+    """
+    Generates data stored in the data_store list.
+    """
+    while True:
+        try:
+            data = data_store[0]  # Get the oldest data point from the list
+            timestamp = data.get("timestamp")
+            humidity = data.get("humidity")
+            pressure = data.get("pressure")
+            yield f"data:{{\"time\": \"{timestamp}\", \"value\": {humidity}}}\n\n"
+            # If no data in data_store, wait for a short time before checking again
+            await asyncio.sleep(2)
+        except Exception as e:
+            logger.error("Error processing data: %s", e)
+            break
