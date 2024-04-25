@@ -95,13 +95,13 @@
     
    // Define the coordinates of the markers
     var markerCoordinates = [
-        [-6.3643444, 106.8290695],
-        [-6.3669607, 106.8314781],
-        [-6.3653083, 106.8246415],
-        [-6.3705264, 106.8268372],
-        [-6.3607737, 106.8265036],
-        [-6.3651944, 106.8311499],
-        [-6.3643654, 106.8289994]
+        {id: 'moisture_sensor1', coordinates: [-6.3643444, 106.8290695]},
+        {id: 'moisture_sensor2', coordinates: [-6.3669607, 106.8314781]},
+        {id: 'moisture_sensor3', coordinates: [-6.3653083, 106.8246415]},
+        {id: 'moisture_sensor4', coordinates: [-6.3705264, 106.8268372]},
+        {id: 'moisture_sensor1', coordinates: [-6.3607737, 106.8265036]},
+        {id: 'moisture_sensor1', coordinates: [-6.3651944, 106.8311499]},
+        {id: 'moisture_sensor1', coordinates: [-6.3643654, 106.8289994]}
     ];
 
     // (-6.3653993, 106.8246962) ==> Dekat pusgiwa
@@ -114,10 +114,11 @@
 
     // Loop through the coordinates array to create and add markers to the map
     for (var i = 0; i < markerCoordinates.length; i++) {
-        var marker = L.marker(markerCoordinates[i], 
+        var marker = L.marker(markerCoordinates[i].coordinates, 
         { icon: L.icon(markerIconOptions) }
         );
         marker.addTo(map);
+        marker.bindPopup('<a href="/plot/' + markerCoordinates[i].id + '">Sensor: ' + markerCoordinates[i].id + '</a>');
     }
 
     map.setMaxBounds(bounds);

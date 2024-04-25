@@ -94,14 +94,14 @@
         northEast = L.latLng(-6.3609, 106.8318),
         bounds = L.latLngBounds(southWest, northEast);
 
-    // Define the coordinates of the markers
+    // Define the coordinates of the markers along with sensor IDs
     var markerCoordinates = [
-          [-6.3643444, 106.8290695],
-          [-6.3669607, 106.8314781],
-          [-6.3651944, 106.8311499],
-          [-6.3653083, 106.8246415],
-          [-6.3705264, 106.8268372],
-          [-6.3607737, 106.8265036]
+          { id: 'suction_sensor1', coordinates: [-6.3643444, 106.8290695] },
+          { id: 'suction_sensor2', coordinates: [-6.3669607, 106.8314781] },
+          { id: 'suction_sensor3', coordinates: [-6.3651944, 106.8311499] },
+          { id: 'suction_sensor4', coordinates: [-6.3653083, 106.8246415] },
+          { id: 'suction_sensor5', coordinates: [-6.3705264, 106.8268372] },
+          { id: 'suction_sensor6', coordinates: [-6.3607737, 106.8265036] }
       ];
 
     var markerIconOptions = {
@@ -111,10 +111,13 @@
 
     // Loop through the coordinates array to create and add markers to the map
     for (var i = 0; i < markerCoordinates.length; i++) {
-        var marker = L.marker(markerCoordinates[i], 
+        var marker = L.marker(markerCoordinates[i].coordinates, 
         { icon: L.icon(markerIconOptions) }
         );
         marker.addTo(map);
+
+        // Add a link to each marker point
+        marker.bindPopup('<a href="/plot/' + markerCoordinates[i].id + '">Sensor: ' + markerCoordinates[i].id + '</a>');
     }
 
     map.setMaxBounds(bounds);

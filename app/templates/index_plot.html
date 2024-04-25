@@ -57,20 +57,26 @@
         const config = {
             type: 'line',
             data: {
-                labels: Array(30).fill("000000000000"),
+                labels: Array(60).fill("000000000000"),
                 datasets: [{
-                    label: "Random Dataset",
+                    label: "Moisture",
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
-                    data: Array(30).fill(null),
+                    data: Array(60).fill(null),
                     fill: false,
-                }],
+                }, {
+                    label: "Suction",
+                    backgroundColor: 'rgb(54, 162, 235)', // Choose a different color
+                    borderColor: 'rgb(54, 162, 235)',
+                    data: Array(60).fill(null),
+                    fill: false,
+                }]
             },
             options: {
                 responsive: true,
                 title: {
                     display: true,
-                    text: 'Creating Real-Time Charts with FastAPI'
+                    text: 'Soil Moisture and Suction Real-Time Plot'
                 },
                 tooltips: {
                     mode: 'index',
@@ -92,8 +98,16 @@
                         display: true,
                         scaleLabel: {
                             display: true,
-                            labelString: 'Value'
-                        }
+                            labelString: 'Moisture'
+                        },
+                    },
+                    {
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Suction'
+                        },
+                        position: 'right',
                     }]
                 }
             }
@@ -103,16 +117,21 @@
 
         const lineChart = new Chart(context, config);
 
-        const source = new EventSource("/chart-data");
+        const source = new EventSource("/chart-data/{{ sensor_id }}");
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (config.data.labels.length === 30) {
+            if (config.data.labels.length === 60) {
                 config.data.labels.shift();
                 config.data.datasets[0].data.shift();
+                config.data.datasets[1].data.shift();
             }
+            console.log(data.moisture);
+            console.log(data.suction);
+
             config.data.labels.push(data.time);
-            config.data.datasets[0].data.push(data.value);
+            config.data.datasets[0].data.push(data.moisture);
+            config.data.datasets[1].data.push(data.suction);
             lineChart.update();
         }
     });

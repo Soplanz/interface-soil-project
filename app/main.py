@@ -23,7 +23,19 @@ templates = Jinja2Templates(directory="app/templates")
 random.seed()  
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-data_store: List[dict] = []
+data_store = {
+    'suction_sensor1':[], 
+    'suction_sensor2':[], 
+    'suction_sensor3':[], 
+    'suction_sensor4':[], 
+    'suction_sensor5':[],
+    'moisture_sensor1':[], 
+    'moisture_sensor2':[], 
+    'moisture_sensor3':[], 
+    'moisture_sensor4':[], 
+    'moisture_sensor5':[],
+}
+
 MAX_DATA_POINTS = 1
 
 @app.get("/", response_class=HTMLResponse)
@@ -41,9 +53,9 @@ async def suction_(request: Request):
     return templates.TemplateResponse("index_suction.html", {'request': request})
 
 
-@app.get("/plot", response_class=HTMLResponse)
-async def suction_(request: Request):
-    return templates.TemplateResponse("index_plot.html", {'request': request})
+@app.get("/plot/{sensor_id}", response_class=HTMLResponse)
+async def suction_(request: Request, sensor_id: str):
+    return templates.TemplateResponse("index_plot.html", {'request': request, 'sensor_id': sensor_id})
 
 
 @app.post("/predict/moisture/{latitude}/{longitude}")
@@ -69,7 +81,6 @@ async def predict_moisture(latitude: str, longitude: str):
     
     return features_data
 
-
 @app.post("/predict/suction/{latitude}/{longitude}")
 async def predict_suction(latitude: str, longitude: str):
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -93,62 +104,42 @@ async def predict_suction(latitude: str, longitude: str):
     
     return features_data
 
-async def generate_random_data(request: Request) -> Iterator[str]:
-    """
-    Generates random value between 0 and 100
-
-    :return: String containing current timestamp (YYYY-mm-dd HH:MM:SS) and randomly generated data.
-    """
-    client_ip = request.client.host
-
-    logger.info("Client %s connected", client_ip)
-
-    while True:
-        json_data = json.dumps(
-            {
-                "time": datetime.now().strftime("%Y%m%d%H%M"),
-                "value": random.random() * 100,
-            }
-        )
-        yield f"data:{json_data}\n\n"
-        await asyncio.sleep(2)
-
-
-@app.get("/chart-data")
-async def chart_data(request: Request) -> StreamingResponse:
-    response = StreamingResponse(generate_client_data(), media_type="text/event-stream")
+@app.get("/chart-data/{sensor_id}")
+async def chart_data(request: Request, sensor_id:str) -> StreamingResponse:
+    response = StreamingResponse(generate_client_data(sensor_id), media_type="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
-@app.post("/receive-data")
-async def receive_data(data: dict):
+@app.post("/receive-data/{sensor_id}")
+async def receive_data(sensor_id:str, data: dict):
     """
     Receive data sent via POST request and store it.
     """
 
-    data_store.insert(0, data)
+    # Add sensor ID to the data payload
+    data_store[sensor_id].insert(0, data)
     logger.info("Received data: %s", data)
     
     # Ensure that data_store does not exceed the maximum number of data points
-    if len(data_store) > MAX_DATA_POINTS:
-        data_store.pop()  # Remove the oldest data point from the end of the list
+    if len(data_store[sensor_id]) > MAX_DATA_POINTS:
+        data_store[sensor_id].pop()  # Remove the oldest data point from the end of the list
 
     return {"message": "Data received successfully"}
 
-async def generate_client_data() -> Iterator[str]:
+async def generate_client_data(sensor_id=None) -> Iterator[str]:
     """
     Generates data stored in the data_store list.
     """
     while True:
         try:
-            data = data_store[0]  # Get the oldest data point from the list
-            timestamp = data.get("timestamp")
-            humidity = data.get("humidity")
-            pressure = data.get("pressure")
-            yield f"data:{{\"time\": \"{timestamp}\", \"value\": {humidity}}}\n\n"
-            # If no data in data_store, wait for a short time before checking again
-            await asyncio.sleep(2)
+            if len(data_store[sensor_id]) > 0:
+                data = data_store[sensor_id][0]   
+                timestamp = data.get("timestamp")
+                humidity = data.get("humidity")
+                pressure = data.get("pressure")
+                yield f"data:{{\"time\": \"{timestamp}\", \"moisture\": {humidity}, \"suction\": {pressure}}}\n\n"
+                await asyncio.sleep(2)
         except Exception as e:
             logger.error("Error processing data: %s", e)
             break
