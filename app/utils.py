@@ -1,5 +1,12 @@
 from datetime import datetime
 import requests
+import logging
+import sys
+from pykrige.ok import OrdinaryKriging
+import pandas as pd
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
 
 def get_nearest_hour(timestamp_str):
     dt = datetime.strptime(timestamp_str, '%Y%m%d%H%M%S')
@@ -10,7 +17,7 @@ def get_nearest_hour(timestamp_str):
     return str(nearest_dt.strftime('%Y%m%d%H%M'))
 
 def get_today_info(latitude: str, longitude: str):
-    api_data = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,precipitation,rain,weather_code,evapotranspiration,wind_speed_10m,wind_direction_10m&timezone=auto&forecast_days=1").json()
+    api_data = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,precipitation,rain,weather_code,evapotranspiration,wind_speed_10m,wind_direction_10m&timezone=Asia%2FSingapore&past_days=1&forecast_days=1").json()
     api_dict = {
         'timestamp'         : api_data['hourly']['time'],
         'temperature'       : api_data['hourly']['temperature_2m'],
@@ -24,6 +31,7 @@ def get_today_info(latitude: str, longitude: str):
         'wind_direction'    : api_data['hourly']['wind_direction_10m']
     }
 
+    logger.info(api_dict['timestamp'])
     features_col = [
         'temperature',
         'humidity',
@@ -38,3 +46,19 @@ def get_today_info(latitude: str, longitude: str):
 
     api_dict['timestamp'] = [time.replace('-', '').replace(':', '').replace('T', '') for time in api_dict['timestamp']]
     return api_dict, features_col
+
+def kriging_calculation(data_store: dict, metric:str, latitude: str, longitude: str):
+    list_metric = []
+    
+    for key in data_store.keys():
+        if len(data_store[key]) == 0:
+            return None
+        list_metric.append(float(data_store[key][0].get(metric)))
+
+    list_latitude = [-6.3643444, -6.3653083, -6.3651944, -6.367975, -6.3705264, -6.3607737]
+    list_longitude = [106.8290695, 106.8246415, 106.8311499, 106.830208, 106.8268372, 106.8265036]
+        
+    OK_metric = OrdinaryKriging(list_latitude, list_longitude, list_metric, variogram_model='linear')
+    metric_interp, _ = OK_metric.execute('points', [float(latitude)], [float(longitude)])
+
+    return metric_interp[0]

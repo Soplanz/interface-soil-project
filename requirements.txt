@@ -10,3 +10,6 @@ uvloop
 httptools
 requests
 jinja2
+aiokafka
+python-dotenv
+pykrige==1.7.1

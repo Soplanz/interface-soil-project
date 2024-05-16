@@ -96,12 +96,12 @@
 
     // Define the coordinates of the markers along with sensor IDs
     var markerCoordinates = [
-          { id: 'suction_sensor1', coordinates: [-6.3643444, 106.8290695] },
-          { id: 'suction_sensor2', coordinates: [-6.3669607, 106.8314781] },
-          { id: 'suction_sensor3', coordinates: [-6.3651944, 106.8311499] },
-          { id: 'suction_sensor4', coordinates: [-6.3653083, 106.8246415] },
-          { id: 'suction_sensor5', coordinates: [-6.3705264, 106.8268372] },
-          { id: 'suction_sensor6', coordinates: [-6.3607737, 106.8265036] }
+        {id: 'sensor1', coordinates: [-6.3643444, 106.8290695]},
+        {id: 'sensor2', coordinates: [-6.3653083, 106.8246415]},
+        {id: 'sensor3', coordinates: [-6.3651944, 106.8311499]},
+        {id: 'sensor4', coordinates: [-6.367975, 106.830208]},
+        {id: 'sensor5', coordinates: [-6.3705264, 106.8268372]},
+        {id: 'sensor6', coordinates: [-6.3607737, 106.8265036]},
       ];
 
     var markerIconOptions = {
@@ -170,7 +170,8 @@
         "Evapotranspiration": data.evapotranspiration,
         "Wind Speed (m/s)": data.wind_speed,
         "Wind Direction (°)": data.wind_direction,
-        "Predicted Suction": data.predicted_suction
+        "Predicted Suction": data.predicted_suction,
+        "Predicted Suction by Kriging (%)": data.predicted_suction_kriging
       };
 
       // Clear previous table content

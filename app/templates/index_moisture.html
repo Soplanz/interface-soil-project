@@ -95,13 +95,12 @@
     
    // Define the coordinates of the markers
     var markerCoordinates = [
-        {id: 'moisture_sensor1', coordinates: [-6.3643444, 106.8290695]},
-        {id: 'moisture_sensor2', coordinates: [-6.3669607, 106.8314781]},
-        {id: 'moisture_sensor3', coordinates: [-6.3653083, 106.8246415]},
-        {id: 'moisture_sensor4', coordinates: [-6.3705264, 106.8268372]},
-        {id: 'moisture_sensor1', coordinates: [-6.3607737, 106.8265036]},
-        {id: 'moisture_sensor1', coordinates: [-6.3651944, 106.8311499]},
-        {id: 'moisture_sensor1', coordinates: [-6.3643654, 106.8289994]}
+        {id: 'sensor1', coordinates: [-6.3643444, 106.8290695]},
+        {id: 'sensor2', coordinates: [-6.3653083, 106.8246415]},
+        {id: 'sensor3', coordinates: [-6.3651944, 106.8311499]},
+        {id: 'sensor4', coordinates: [-6.367975, 106.830208]},
+        {id: 'sensor5', coordinates: [-6.3705264, 106.8268372]},
+        {id: 'sensor6', coordinates: [-6.3607737, 106.8265036]},
     ];
 
     // (-6.3653993, 106.8246962) ==> Dekat pusgiwa
@@ -172,7 +171,8 @@
         "Evapotranspiration": data.evapotranspiration,
         "Wind Speed (m/s)": data.wind_speed,
         "Wind Direction (°)": data.wind_direction,
-        "Predicted Moisture": data.predicted_moisture
+        "Predicted Moisture (%)": data.predicted_moisture, 
+        "Predicted Moisture by Kriging (%)": data.predicted_moisture_kriging
         };
 
         // Clear previous table content
