@@ -4,6 +4,9 @@ Repository for final task about the project from civil engineering.
 * utils.py : for preprocessing the data used for machine learning prediction
 * main.py  : the general workflow of the website including the data streaming mechanism and the url for the whole page.
 
+## Open Source API:
+https://open-meteo.com/en/docs/
+
 ## Step by step to add sensor to the website:
 1. add sensor coordinate in this code "index_<metric>.html"
  ```var markerCoordinates = [
