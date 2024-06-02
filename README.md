@@ -17,7 +17,8 @@ Step by step to add sensor to the website:
 ```
 
 2. add sensor list to keep the temporary streamed data in this code "main.py"
-```data_store = {
+```
+data_store = {
     'sensor1':[], 
     'sensor2':[], 
     'sensor3':[], 
