@@ -13,7 +13,8 @@ Step by step to add sensor to the website:
         {id: 'sensor4', coordinates: [-6.367975, 106.830208]},
         {id: 'sensor5', coordinates: [-6.3705264, 106.8268372]},
         {id: 'sensor6', coordinates: [-6.3607737, 106.8265036]},
-      ];```
+    ];
+```
 
 2. add sensor list to keep the temporary streamed data in this code "main.py"
 ```data_store = {
