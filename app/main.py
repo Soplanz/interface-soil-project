@@ -171,7 +171,7 @@ async def generate_client_data(sensor_id=None) -> Iterator[str]:
                 humidity = data.get("humidity")
                 pressure = data.get("pressure")
                 yield f"data:{{\"time\": \"{timestamp}\", \"moisture\": {humidity}, \"suction\": {pressure}}}\n\n"
-                await asyncio.sleep(2)
+                await asyncio.sleep(1)
         except Exception as e:
             logger.error("Error processing data: %s", e)
             break
