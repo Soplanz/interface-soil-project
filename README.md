@@ -1,10 +1,10 @@
 # interface-soil-project
 Repository for final task about the project from civil engineering.
 
-* utils.py => for preprocessing the data used for machine learning prediction
-* main.py  => the general workflow of the website including the data streaming mechanism and the url for the whole page.
+* utils.py : for preprocessing the data used for machine learning prediction
+* main.py  : the general workflow of the website including the data streaming mechanism and the url for the whole page.
 
-Step by step to add sensor to the website:
+## Step by step to add sensor to the website:
 1. add sensor coordinate in this code "index_<metric>.html"
  ```var markerCoordinates = [
         {id: 'sensor1', coordinates: [-6.3643444, 106.8290695]},
@@ -28,6 +28,6 @@ data_store = {
 }
 ```
 
-Step by step on updating the model (if enchanced)
+## Step by step on updating the model (if enchanced)
 1. Name model for suction as 'suction_model.pkl' and moisture model as 'moisture_model.pkl'
 2. Edit needed feature (if needed to match the requirements of the model) for prediction in main.py, 'predict_moisture(args)' for moisture and 'predict_suction(args)' for suction
