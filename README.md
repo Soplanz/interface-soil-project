@@ -1,6 +1,8 @@
 # interface-soil-project
 Repository for final task about the project from civil engineering.
 
+Video usage tutorial: https://youtu.be/k7o3h9kNNbA
+
 * utils.py : for preprocessing the data used for machine learning prediction
 * main.py  : the general workflow of the website including the data streaming mechanism and the url for the whole page.
 
