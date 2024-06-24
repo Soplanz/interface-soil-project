@@ -8,7 +8,7 @@ Repository for final task about the project from civil engineering.
 https://open-meteo.com/en/docs/
 
 ## Step by step to add sensor to the website:
-1. add sensor coordinate in this code "index_<metric>.html"
+1. add sensor coordinate in this code ("index_moisture.html" for moisture and "index_suction.html" for suction")
  ```var markerCoordinates = [
         {id: 'sensor1', coordinates: [-6.3643444, 106.8290695]},
         {id: 'sensor2', coordinates: [-6.3653083, 106.8246415]},
